@@ -21,11 +21,7 @@
         min-height: 100dvh;
         background: #000;
       }
-      .home img {
-        display: block;
-        width: min(80vw, 747px); /* 83 x 9: whole-pixel scale */
-        height: auto;
-      }
+      #art { display: block; height: auto; }
       .home:focus-visible {
         outline: 2px solid #fff;
         outline-offset: -6px;
@@ -34,7 +30,27 @@
   </head>
   <body>
     <a class="home" href="https://github.com/lever-tech/flake" aria-label="lever flake on GitHub">
-      <img src="lever-flake.svg" alt="" width="83" height="7" />
+      <img id="art" src="lever-flake.svg" alt="" width="83" height="7" />
     </a>
+    <noscript>
+      <style>
+        #art { width: 747px; max-width: 83vw; }
+      </style>
+    </noscript>
+    <script>
+      // Pixel art only looks right at whole-number scales, so round the
+      // scale down to an integer and size the image in exact pixels.
+      const ART_WIDTH = 83;
+      const art = document.getElementById("art");
+
+      function fit() {
+        const margin = Math.max(16, Math.round(window.innerWidth * 0.05));
+        const scale = Math.min(16, Math.floor((window.innerWidth - margin) / ART_WIDTH));
+        art.style.width = Math.max(ART_WIDTH, scale * ART_WIDTH) + "px";
+      }
+
+      fit();
+      addEventListener("resize", fit, { passive: true });
+    </script>
   </body>
 </html>
