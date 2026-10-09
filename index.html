@@ -21,7 +21,19 @@
         min-height: 100dvh;
         background: #000;
       }
-      #art { display: block; height: auto; }
+      /* The art is 83 units wide, so only whole-number scales keep the
+         pixels square. Each width below is 83 x an integer, switched at the
+         exact viewport width where that scale becomes the largest that fits
+         within half the viewport, capped at 83 x 6 = 498px. */
+      #art {
+        display: block;
+        width: 166px; /* 83 x 2 */
+        height: auto;
+      }
+      @media (min-width: 498px) { #art { width: 249px; } } /* 83 x 3 */
+      @media (min-width: 664px) { #art { width: 332px; } } /* 83 x 4 */
+      @media (min-width: 830px) { #art { width: 415px; } } /* 83 x 5 */
+      @media (min-width: 996px) { #art { width: 498px; } } /* 83 x 6 */
       .home:focus-visible {
         outline: 2px solid #fff;
         outline-offset: -6px;
@@ -32,28 +44,5 @@
     <a class="home" href="https://github.com/lever-tech/flake" aria-label="lever flake on GitHub">
       <img id="art" src="lever-flake.svg" alt="" width="83" height="7" />
     </a>
-    <noscript>
-      <style>
-        #art { width: 498px; max-width: 50vw; }
-      </style>
-    </noscript>
-    <script>
-      // Pixel art only looks right at whole-number scales, so round the scale
-      // down to an integer and size the image in exact pixels. The art is kept
-      // well under half the viewport so it reads as a mark in open space.
-      const ART_WIDTH = 83;
-      const MAX_WIDTH = 560;
-      const MIN_SCALE = 2;
-      const art = document.getElementById("art");
-
-      function fit() {
-        const room = Math.min(window.innerWidth * 0.5, MAX_WIDTH);
-        const scale = Math.max(MIN_SCALE, Math.floor(room / ART_WIDTH));
-        art.style.width = scale * ART_WIDTH + "px";
-      }
-
-      fit();
-      addEventListener("resize", fit, { passive: true });
-    </script>
   </body>
 </html>
