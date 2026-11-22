@@ -5,7 +5,7 @@
   if (!canvas) return;
 
   const LADDER_HEX = [
-    '#040404', '#0e0e0e', '#1e1e1e', '#343434',
+    '#000000', '#0e0e0e', '#1e1e1e', '#343434',
     '#545454', '#7e7e7e', '#b4b4b4', '#f2f2f2',
   ];
 
@@ -25,7 +25,17 @@
   const FPS = 30;
   const FRAME_MS = 1000 / FPS;
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Honour the OS/browser setting, but let ?motion=on|off override it so a device
+  // that reports reduce (Android "Remove animations", hardened browsers) can still
+  // see the field move. Also mirrored onto <html> so CSS can gate the reveal.
+  const params = new URLSearchParams(window.location.search);
+  const motionPref = params.get('motion');
+  const reducedMotion = motionPref === 'on' ? false
+    : motionPref === 'off' ? true
+    : window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (motionPref === 'on' || motionPref === 'off') {
+    document.documentElement.dataset.motion = motionPref;
+  }
 
   function hexToRgb01(hex) {
     const n = parseInt(hex.slice(1), 16);
@@ -60,6 +70,7 @@
   const ripples = new Float32Array(RIPPLE_LEN * 4);
   let rippleHead = 0;
   let lastRippleAt = -Infinity;
+  let taps = 0;
 
   // [data-dim] rect in cell coords: [x0, y0, x1, y1]
   const dimRect = new Float32Array(4);
@@ -324,6 +335,7 @@
     gl.uniform3fv(loc.ladder, ladderFloats);
 
     return {
+      kind: 'webgl2',
       draw(timeSec, intro) {
         gl.viewport(0, 0, cols, rows);
         gl.uniform2f(loc.res, cols, rows);
@@ -345,6 +357,7 @@
     let img = null;
 
     return {
+      kind: '2d',
       draw(timeSec) {
         if (!img || img.width !== cols || img.height !== rows) {
           img = ctx.createImageData(cols, rows);
@@ -388,6 +401,7 @@
     }, { passive: true });
 
     window.addEventListener('pointerdown', (e) => {
+      taps++;
       const now = performance.now() * 0.001;
       if (now - lastRippleAt < RIPPLE_COOLDOWN) return;
       lastRippleAt = now;
@@ -407,6 +421,23 @@
   resize();
   const renderer = createGL() || create2D();
   if (!renderer) return;
+
+  // ?debug: on-device readout of the motion decision, renderer and frame rate
+  let hud = null;
+  let frames = 0;
+  let hudAt = 0;
+  let fps = 0;
+  if (params.has('debug')) {
+    hud = document.createElement('div');
+    hud.className = 'hud';
+    document.body.appendChild(hud);
+    updateHud();
+  }
+
+  function updateHud() {
+    hud.textContent = `motion=${reducedMotion ? 'reduced' : 'on'} `
+      + `renderer=${renderer.kind} fps=${fps} taps=${taps}`;
+  }
 
   let lastDraw = 0;
   let simTime = 12.0; // start on an interesting wave phase
@@ -472,6 +503,16 @@
       }
 
       renderer.draw(simTime, introEase());
+
+      if (hud) {
+        frames++;
+        if (now - hudAt >= 500) {
+          fps = Math.round((frames * 1000) / (now - hudAt));
+          frames = 0;
+          hudAt = now;
+          updateHud();
+        }
+      }
     }
 
     if (!reducedMotion) requestAnimationFrame(tick);

@@ -4,7 +4,7 @@
   color-scheme: dark;
 
   /* 8-step monochrome luminance ladder — deeper obsidian, crisper contrast */
-  --l0: #040404;
+  --l0: #000000;
   --l1: #0e0e0e;
   --l2: #1e1e1e;
   --l3: #343434;
@@ -99,7 +99,7 @@ body {
   height: calc(7 * var(--cell));
   image-rendering: pixelated;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 0 18px rgba(6, 6, 6, 0.9));
+  filter: drop-shadow(0 0 18px rgba(0, 0, 0, 0.9));
   animation: dither-in 640ms step-end both;
   mask-repeat: repeat;
   mask-size: calc(var(--cell) * 4) calc(var(--cell) * 4);
@@ -109,7 +109,9 @@ body {
 
 .mark__link {
   font-family: var(--mono);
-  font-size: calc(var(--cell) * 2);
+  /* Two cells is the desktop size (12px) but only ~4px on a phone; pin it so the
+     label stays readable at every cell scale. */
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: lowercase;
@@ -140,6 +142,13 @@ body {
   100% { opacity: 1; mask-image: none; -webkit-mask-image: none; }
 }
 
+/* No hover on touch: the resting label must carry its own contrast */
+@media (hover: none) {
+  .mark__link {
+    color: var(--l5);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   #art,
   .mark__link {
@@ -147,4 +156,36 @@ body {
     mask-image: none;
     -webkit-mask-image: none;
   }
+}
+
+/* ?motion=on|off, mirrored onto <html> by dither.js, overrides the media query */
+html[data-motion='on'] #art {
+  animation: dither-in 640ms step-end both;
+}
+
+html[data-motion='on'] .mark__link {
+  animation: link-fade 500ms var(--ease) 1050ms both;
+}
+
+html[data-motion='off'] #art,
+html[data-motion='off'] .mark__link {
+  animation: none;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+.hud {
+  position: fixed;
+  left: calc(var(--cell) * 2);
+  bottom: calc(var(--cell) * 2);
+  z-index: 2;
+  padding: 4px 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: var(--l6);
+  background: rgba(0, 0, 0, 0.8);
+  white-space: pre;
+  pointer-events: none;
 }
