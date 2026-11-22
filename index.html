@@ -3,46 +3,38 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>levertech</title>
-    <meta name="description" content="Open hardware for human input." />
-    <meta name="theme-color" content="#000000" />
-    <link rel="icon" href="data:," />
-    <style>
-      html { background: #000; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        min-height: 100dvh;
-      }
-      .home {
-        display: grid;
-        place-items: center;
-        min-height: 100vh;
-        min-height: 100dvh;
-        background: #000;
-      }
-      /* The art is 83 units wide, so only whole-number scales keep the
-         pixels square. Each width below is 83 x an integer, switched at the
-         exact viewport width where that scale becomes the largest that fits
-         within half the viewport, capped at 83 x 6 = 498px. */
-      #art {
-        display: block;
-        width: 166px; /* 83 x 2 */
-        height: auto;
-      }
-      @media (min-width: 498px) { #art { width: 249px; } } /* 83 x 3 */
-      @media (min-width: 664px) { #art { width: 332px; } } /* 83 x 4 */
-      @media (min-width: 830px) { #art { width: 415px; } } /* 83 x 5 */
-      @media (min-width: 996px) { #art { width: 498px; } } /* 83 x 6 */
-      .home:focus-visible {
-        outline: 2px solid #fff;
-        outline-offset: -6px;
-      }
-    </style>
+    <title>lever flake</title>
+    <meta name="description" content="lever flake" />
+    <meta property="og:title" content="lever flake" />
+    <meta property="og:url" content="https://lever.technology/" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#060606" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <a class="home" href="https://github.com/lever-tech/flake" aria-label="lever flake on GitHub">
-      <img id="art" src="lever-flake.svg" alt="" width="83" height="7" />
-    </a>
+    <canvas id="field" aria-hidden="true"></canvas>
+
+    <main class="stage">
+      <a
+        class="mark"
+        href="https://github.com/lever-tech/flake"
+        aria-label="lever flake on GitHub"
+        data-dim
+        draggable="false"
+      >
+        <img
+          id="art"
+          src="lever-flake.svg"
+          alt="lever flake"
+          width="83"
+          height="7"
+          draggable="false"
+        />
+        <span class="mark__link" aria-hidden="true">source &nearr;</span>
+      </a>
+    </main>
+
+    <script src="dither.js" defer></script>
   </body>
 </html>
